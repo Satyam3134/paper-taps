@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PaperTaps — Learn & Play</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fdf6e3;
+    --paper-dark: #f5e6c8;
+    --paper-fold: #ede0c4;
+    --ink: #3d2b1f;
+    --ink-light: #6b4c3b;
+    --red: #e05c3a;
+    --green: #5a9e6f;
+    --blue: #4a86c8;
+    --yellow: #f0b429;
+    --purple: #9b72cf;
+    --pink: #e07aab;
+    --orange: #e8844a;
+    --teal: #3aada8;
+    --shadow: rgba(61,43,31,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: #e8dcc8;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(61,43,31,0.06) 27px, rgba(61,43,31,0.06) 28px),
+      repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(61,43,31,0.03) 27px, rgba(61,43,31,0.03) 28px);
+    font-family: 'Nunito', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Paper texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    background: var(--paper);
+    border-bottom: 3px solid var(--paper-fold);
+    padding: 18px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 12px var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 52px;
+    height: 52px;
+    background: var(--red);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.18);
+    transform: rotate(-3deg);
+    animation: wiggle 4s ease-in-out infinite;
+  }
+
+  @keyframes wiggle {
+    0%,100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+  }
+
+  .logo-text {
+    font-family: 'Fredoka One', cursive;
+    font-size: 28px;
+    color: var(--ink);
+    letter-spacing: 0.5px;
+  }
+
+  .logo-text span { color: var(--red); }
+
+  nav {
+    display: flex;
+    gap: 8px;
+  }
+
+  nav button {
+    background: none;
+    border: 2.5px solid var(--paper-fold);
+    border-radius: 50px;
+    padding: 8px 18px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink-light);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  nav button:hover, nav button.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+    transform: translateY(-2px);
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    text-align: center;
+    padding: 60px 20px 40px;
+  }
+
+  .hero h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    color: var(--ink);
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+
+  .hero h1 .wave {
+    display: inline-block;
+    animation: bounceChar 1s ease-in-out infinite;
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--ink-light);
+    max-width: 500px;
+    margin: 0 auto 30px;
+    font-weight: 600;
+  }
+
+  /* ─── SECTIONS / SCREENS ─── */
+  .screen { display: none; padding: 20px; max-width: 1100px; margin: 0 auto; }
+  .screen.active { display: block; animation: fadeIn 0.4s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: var(--ink);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 3px;
+    background: repeating-linear-gradient(90deg, var(--paper-fold) 0, var(--paper-fold) 8px, transparent 8px, transparent 14px);
+    border-radius: 4px;
+  }
+
+  /* ─── HOME GRID ─── */
+  .home-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    padding: 10px 0 40px;
+  }
+
+  .topic-card {
+    background: var(--paper);
+    border-radius: 20px;
+    padding: 28px 16px 22px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--paper-fold), 4px 4px 0 1px var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 2px solid var(--paper-fold);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .topic-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    opacity: 0.08;
+    background: var(--card-accent, #000);
+  }
+
+  .topic-card:hover {
+    transform: translateY(-6px) rotate(-1deg);
+    box-shadow: 6px 10px 0 var(--paper-fold), 6px 10px 0 1px var(--shadow);
+  }
+
+  .topic-card .emoji {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 10px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .topic-card:nth-child(2) .emoji { animation-delay: 0.3s; }
+  .topic-card:nth-child(3) .emoji { animation-delay: 0.6s; }
+  .topic-card:nth-child(4) .emoji { animation-delay: 0.9s; }
+  .topic-card:nth-child(5) .emoji { animation-delay: 1.2s; }
+  .topic-card:nth-child(6) .emoji { animation-delay: 1.5s; }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .topic-card h3 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .topic-card p {
+    font-size: 0.78rem;
+    color: var(--ink-light);
+    font-weight: 600;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-top: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* ─── ALPHABET SCREEN ─── */
+  .alphabet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 16px;
+  }
+
+  .letter-card {
+    background: var(--paper);
+    border-radius: 18px;
+    padding: 20px 10px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--paper-fold);
+    border: 2px solid var(--paper-fold);
+    transition: transform 0.18s, box-shadow 0.18s;
+    position: relative;
+  }
+
+  .letter-card:hover { transform: scale(1.06) rotate(-2deg); box-shadow: 5px 5px 0 var(--paper-fold); }
+
+  .letter-card .big-letter {
+    font-family: 'Fredoka One', cursive;
+    font-size: 3rem;
+    line-height: 1;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .letter-card .letter-word {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink-light);
+  }
+
+  .letter-card .letter-pic {
+    font-size: 1.4rem;
+    display: block;
+    margin: 4px 0;
+  }
+
+  /* ─── ANIMALS & BIRDS GRID ─── */
+  .creature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 18px;
+  }
+
+  .creature-card {
+    background: var(--paper);
+    border-radius: 20px;
+    padding: 22px 14px 18px;
+    text-align: center;
+    box-shadow: 4px 4px 0 var(--paper-fold);
+    border: 2px solid var(--paper-fold);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .creature-card:hover { transform: translateY(-5px) rotate(1deg); }
+
+  .creature-card .creature-emoji { font-size: 52px; display: block; margin-bottom: 8px; }
+
+  .creature-card h4 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+
+  .creature-card p {
+    font-size: 0.75rem;
+    color: var(--ink-light);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  .creature-card .sound-btn {
+    margin-top: 10px;
+    background: var(--paper-dark);
+    border: 2px solid var(--paper-fold);
+    border-radius: 30px;
+    padding: 5px 14px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+    color: var(--ink);
+    transition: background 0.18s;
+  }
+
+  .creature-card .sound-btn:hover { background: var(--yellow); }
+
+  /* ─── NUMBERS ─── */
+  .numbers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 16px;
+  }
+
+  .number-card {
+    background: var(--paper);
+    border-radius: 18px;
+    padding: 22px 10px;
+    text-align: center;
+    box-shadow: 3px 3px 0 var(--paper-fold);
+    border: 2px solid var(--paper-fold);
+    cursor: pointer;
+    transition: transform 0.18s;
+  }
+
+  .number-card:hover { transform: scale(1.08); }
+
+  .number-card .big-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 3.2rem;
+    line-height: 1;
+    display: block;
+  }
+
+  .number-card .num-emoji {
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    display: block;
+    margin: 6px 0;
+    min-height: 30px;
+  }
+
+  .number-card .num-word {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink-light);
+  }
+
+  /* ─── COLORS ─── */
+  .colors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 18px;
+  }
+
+  .color-card {
+    border-radius: 20px;
+    padding: 28px 14px;
+    text-align: center;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.12);
+    cursor: pointer;
+    border: 3px solid rgba(255,255,255,0.4);
+    transition: transform 0.2s;
+  }
+
+  .color-card:hover { transform: scale(1.07) rotate(-2deg); }
+
+  .color-card .color-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin: 0 auto 12px;
+    border: 4px solid rgba(255,255,255,0.5);
+    box-shadow: inset 0 -4px 8px rgba(0,0,0,0.1);
+  }
+
+  .color-card h4 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    color: var(--ink);
+  }
+
+  /* ─── SHAPES ─── */
+  .shapes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 18px;
+  }
+
+  .shape-card {
+    background: var(--paper);
+    border-radius: 20px;
+    padding: 26px 14px;
+    text-align: center;
+    box-shadow: 4px 4px 0 var(--paper-fold);
+    border: 2px solid var(--paper-fold);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .shape-card:hover { transform: scale(1.06); }
+
+  .shape-card svg { margin: 0 auto 12px; display: block; }
+
+  .shape-card h4 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+
+  .shape-card p {
+    font-size: 0.75rem;
+    color: var(--ink-light);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  /* ─── FRUITS & VEGGIES ─── */
+  /* reuses creature-grid */
+
+  /* ─── QUIZ SCREEN ─── */
+  .quiz-box {
+    background: var(--paper);
+    border-radius: 24px;
+    padding: 36px;
+    box-shadow: 5px 5px 0 var(--paper-fold), 5px 5px 0 1px var(--shadow);
+    border: 2px solid var(--paper-fold);
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .quiz-question {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    color: var(--ink);
+  }
+
+  .quiz-emoji { font-size: 64px; display: block; margin: 16px 0; }
+
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 24px;
+  }
+
+  .quiz-opt {
+    background: var(--paper-dark);
+    border: 2.5px solid var(--paper-fold);
+    border-radius: 16px;
+    padding: 16px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.18s;
+    color: var(--ink);
+  }
+
+  .quiz-opt:hover { background: var(--yellow); transform: scale(1.04); }
+  .quiz-opt.correct { background: #b8e6c0; border-color: var(--green); }
+  .quiz-opt.wrong { background: #f4c0c0; border-color: var(--red); }
+
+  .quiz-score {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 24px;
+  }
+
+  .score-badge {
+    background: var(--paper-dark);
+    border: 2px solid var(--paper-fold);
+    border-radius: 16px;
+    padding: 10px 22px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+  }
+
+  .score-badge span { font-size: 1.5rem; display: block; }
+
+  .quiz-next {
+    margin-top: 20px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 50px;
+    padding: 12px 32px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+    transition: transform 0.18s;
+    display: none;
+  }
+
+  .quiz-next:hover { transform: translateY(-3px); }
+
+  /* ─── POPUP CARD ─── */
+  .popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(61,43,31,0.45);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .popup-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
+
+  .popup-card {
+    background: var(--paper);
+    border-radius: 24px;
+    padding: 40px 36px;
+    text-align: center;
+    box-shadow: 6px 6px 0 var(--paper-fold), 6px 6px 0 1px rgba(0,0,0,0.1);
+    border: 3px solid var(--paper-fold);
+    max-width: 360px;
+    width: 90%;
+    position: relative;
+    animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  @keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .popup-close {
+    position: absolute;
+    top: 12px; right: 14px;
+    background: var(--paper-dark);
+    border: 2px solid var(--paper-fold);
+    border-radius: 50%;
+    width: 32px; height: 32px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  .popup-big { font-size: 72px; display: block; margin-bottom: 8px; }
+
+  .popup-card h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .popup-card p {
+    font-size: 0.95rem;
+    color: var(--ink-light);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    text-align: center;
+    padding: 28px;
+    color: var(--ink-light);
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-top: 20px;
+  }
+
+  /* ─── CONFETTI ─── */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 9000;
+    animation: confettiFall 2s ease-in forwards;
+  }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    nav button { padding: 7px 12px; font-size: 12px; }
+    .logo-text { font-size: 22px; }
+    .hero { padding: 36px 16px 24px; }
+    .quiz-options { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">📄</div>
+    <div class="logo-text">Paper<span>Taps</span></div>
+  </div>
+  <nav>
+    <button class="active" onclick="showScreen('home')">🏠 Home</button>
+    <button onclick="showScreen('quiz')">🎯 Quiz</button>
+  </nav>
+</header>
+
+<!-- HOME SCREEN -->
+<div id="home" class="screen active">
+  <div class="hero">
+    <h1>Learn, Tap &amp; Grow! 🌱</h1>
+    <p>A calm, cozy corner to explore letters, animals, colors and more!</p>
+  </div>
+
+  <div class="home-grid">
+    <div class="topic-card" onclick="showScreen('alphabet')" style="--card-accent: var(--blue);">
+      <span class="emoji">🔤</span>
+      <h3>Alphabet</h3>
+      <p>A to Z adventure</p>
+      <span class="tag" style="background:#dbeafe; color:#1d4ed8;">26 Letters</span>
+    </div>
+    <div class="topic-card" onclick="showScreen('numbers')" style="--card-accent: var(--green);">
+      <span class="emoji">🔢</span>
+      <h3>Numbers</h3>
+      <p>Count like a star!</p>
+      <span class="tag" style="background:#dcfce7; color:#166534;">1 – 20</span>
+    </div>
+    <div class="topic-card" onclick="showScreen('animals')" style="--card-accent: var(--orange);">
+      <span class="emoji">🦁</span>
+      <h3>Animals</h3>
+      <p>Wild & fun friends</p>
+      <span class="tag" style="background:#ffedd5; color:#9a3412;">20 Animals</span>
+    </div>
+    <div class="topic-card" onclick="showScreen('birds')" style="--card-accent: var(--teal);">
+      <span class="emoji">🦜</span>
+      <h3>Birds</h3>
+      <p>Flying wonders</p>
+      <span class="tag" style="background:#ccfbf1; color:#115e59;">18 Birds</span>
+    </div>
+    <div class="topic-card" onclick="showScreen('colors')" style="--card-accent: var(--pink);">
+      <span class="emoji">🎨</span>
+      <h3>Colors</h3>
+      <p>Paint the world!</p>
+      <span class="tag" style="background:#fce7f3; color:#9d174d;">12 Colors</span>
+    </div>
+    <div class="topic-card" onclick="showScreen('shapes')" style="--card-accent: var(--purple);">
+      <span class="emoji">🔷</span>
+      <h3>Shapes</h3>
+      <p>Circles & squares</p>
+      <span class="tag" style="background:#ede9fe; color:#5b21b6;">10 Shapes</span>
+    </div>
+    <div class="topic-card" onclick="showScreen('fruits')" style="--card-accent: var(--red);">
+      <span class="emoji">🍎</span>
+      <h3>Fruits</h3>
+      <p>Sweet & yummy!</p>
+      <span class="tag" style="background:#fee2e2; color:#991b1b;">16 Fruits</span>
+    </div>
+    <div class="topic-card" onclick="showScreen('veggies')" style="--card-accent: var(--green);">
+      <span class="emoji">🥦</span>
+      <h3>Veggies</h3>
+      <p>Healthy & green</p>
+      <span class="tag" style="background:#dcfce7; color:#166534;">14 Veggies</span>
+    </div>
+    <div class="topic-card" onclick="showScreen('quiz')" style="--card-accent: var(--yellow);">
+      <span class="emoji">🎯</span>
+      <h3>Quiz Time!</h3>
+      <p>Test your knowledge</p>
+      <span class="tag" style="background:#fef9c3; color:#854d0e;">Play Now</span>
+    </div>
+  </div>
+</div>
+
+<!-- ALPHABET SCREEN -->
+<div id="alphabet" class="screen">
+  <h2 class="section-title">🔤 The Alphabet</h2>
+  <div class="alphabet-grid" id="alphabet-grid"></div>
+</div>
+
+<!-- NUMBERS SCREEN -->
+<div id="numbers" class="screen">
+  <h2 class="section-title">🔢 Numbers</h2>
+  <div class="numbers-grid" id="numbers-grid"></div>
+</div>
+
+<!-- ANIMALS SCREEN -->
+<div id="animals" class="screen">
+  <h2 class="section-title">🦁 Animals</h2>
+  <div class="creature-grid" id="animals-grid"></div>
+</div>
+
+<!-- BIRDS SCREEN -->
+<div id="birds" class="screen">
+  <h2 class="section-title">🦜 Birds</h2>
+  <div class="creature-grid" id="birds-grid"></div>
+</div>
+
+<!-- COLORS SCREEN -->
+<div id="colors" class="screen">
+  <h2 class="section-title">🎨 Colors</h2>
+  <div class="colors-grid" id="colors-grid"></div>
+</div>
+
+<!-- SHAPES SCREEN -->
+<div id="shapes" class="screen">
+  <h2 class="section-title">🔷 Shapes</h2>
+  <div class="shapes-grid" id="shapes-grid"></div>
+</div>
+
+<!-- FRUITS SCREEN -->
+<div id="fruits" class="screen">
+  <h2 class="section-title">🍎 Fruits</h2>
+  <div class="creature-grid" id="fruits-grid"></div>
+</div>
+
+<!-- VEGGIES SCREEN -->
+<div id="veggies" class="screen">
+  <h2 class="section-title">🥦 Vegetables</h2>
+  <div class="creature-grid" id="veggies-grid"></div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="quiz" class="screen">
+  <h2 class="section-title">🎯 Quiz Time</h2>
+  <div class="quiz-score">
+    <div class="score-badge"><span id="q-score">0</span>Score</div>
+    <div class="score-badge"><span id="q-streak">0</span>Streak 🔥</div>
+    <div class="score-badge"><span id="q-total">0</span>Answered</div>
+  </div>
+  <div class="quiz-box">
+    <div class="quiz-question" id="quiz-q">Loading...</div>
+    <span class="quiz-emoji" id="quiz-emoji">🤔</span>
+    <div class="quiz-options" id="quiz-opts"></div>
+    <button class="quiz-next" id="quiz-next" onclick="nextQuestion()">Next Question →</button>
+  </div>
+</div>
+
+<!-- POPUP -->
+<div class="popup-overlay" id="popup" onclick="closePopup(event)">
+  <div class="popup-card">
+    <button class="popup-close" onclick="closePopupDirect()">✕</button>
+    <span class="popup-big" id="popup-emoji">🦁</span>
+    <h2 id="popup-title">Lion</h2>
+    <p id="popup-desc">A powerful big cat that roars!</p>
+  </div>
+</div>
+
+<footer>Made with 💛 for curious little minds · PaperTaps © 2025</footer>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────
+const alphabetData = [
+  {l:'A',w:'Apple',e:'🍎',c:'#fecaca'},{l:'B',w:'Ball',e:'⚽',c:'#fed7aa'},
+  {l:'C',w:'Cat',e:'🐱',c:'#fef08a'},{l:'D',w:'Dog',e:'🐶',c:'#bbf7d0'},
+  {l:'E',w:'Elephant',e:'🐘',c:'#bae6fd'},{l:'F',w:'Fish',e:'🐟',c:'#c4b5fd'},
+  {l:'G',w:'Grapes',e:'🍇',c:'#fbcfe8'},{l:'H',w:'Hat',e:'🎩',c:'#fecaca'},
+  {l:'I',w:'Ice Cream',e:'🍦',c:'#fed7aa'},{l:'J',w:'Jellyfish',e:'🪼',c:'#fef08a'},
+  {l:'K',w:'Kite',e:'🪁',c:'#bbf7d0'},{l:'L',w:'Lion',e:'🦁',c:'#bae6fd'},
+  {l:'M',w:'Moon',e:'🌙',c:'#c4b5fd'},{l:'N',w:'Nest',e:'🪺',c:'#fbcfe8'},
+  {l:'O',w:'Orange',e:'🍊',c:'#fecaca'},{l:'P',w:'Penguin',e:'🐧',c:'#fed7aa'},
+  {l:'Q',w:'Queen',e:'👸',c:'#fef08a'},{l:'R',w:'Rainbow',e:'🌈',c:'#bbf7d0'},
+  {l:'S',w:'Sun',e:'☀️',c:'#bae6fd'},{l:'T',w:'Tiger',e:'🐯',c:'#c4b5fd'},
+  {l:'U',w:'Umbrella',e:'☂️',c:'#fbcfe8'},{l:'V',w:'Violin',e:'🎻',c:'#fecaca'},
+  {l:'W',w:'Whale',e:'🐋',c:'#fed7aa'},{l:'X',w:'Xylophone',e:'🎵',c:'#fef08a'},
+  {l:'Y',w:'Yak',e:'🐃',c:'#bbf7d0'},{l:'Z',w:'Zebra',e:'🦓',c:'#bae6fd'}
+];
+
+const numbersData = [
+  {n:1,w:'One',e:'⭐'},{n:2,w:'Two',e:'⭐⭐'},{n:3,w:'Three',e:'⭐⭐⭐'},
+  {n:4,w:'Four',e:'🌟🌟🌟🌟'},{n:5,w:'Five',e:'🍎🍎🍎🍎🍎'},
+  {n:6,w:'Six',e:'🐱🐱🐱🐱🐱🐱'},{n:7,w:'Seven',e:'🌈'},
+  {n:8,w:'Eight',e:'🎈🎈🎈🎈🎈🎈🎈🎈'},{n:9,w:'Nine',e:'⚽×9'},
+  {n:10,w:'Ten',e:'🔟'},{n:11,w:'Eleven',e:'1️⃣1️⃣'},{n:12,w:'Twelve',e:'🎂'},
+  {n:13,w:'Thirteen',e:'🌙✨'},{n:14,w:'Fourteen',e:'💛×14'},
+  {n:15,w:'Fifteen',e:'🌸×15'},{n:16,w:'Sixteen',e:'🎵×16'},
+  {n:17,w:'Seventeen',e:'🐝×17'},{n:18,w:'Eighteen',e:'🍀×18'},
+  {n:19,w:'Nineteen',e:'🦋×19'},{n:20,w:'Twenty',e:'2️⃣0️⃣'}
+];
+
+const numberColors = ['#fecaca','#fed7aa','#fef08a','#bbf7d0','#bae6fd','#c4b5fd','#fbcfe8','#fecaca','#fed7aa','#fef08a'];
+
+const animalsData = [
+  {e:'🦁',n:'Lion',d:'King of the jungle, brave and loud!'},
+  {e:'🐘',n:'Elephant',d:'Largest land animal with a long trunk.'},
+  {e:'🐯',n:'Tiger',d:'A big striped cat that hunts at night.'},
+  {e:'🦒',n:'Giraffe',d:'Tallest animal with a very long neck!'},
+  {e:'🦓',n:'Zebra',d:'A horse with black & white stripes.'},
+  {e:'🐻',n:'Bear',d:'Loves honey and sleeps all winter!'},
+  {e:'🐆',n:'Cheetah',d:'Fastest animal on land, super speedy!'},
+  {e:'🦊',n:'Fox',d:'A clever and curious little creature.'},
+  {e:'🐺',n:'Wolf',d:'Howls at the moon and runs in packs.'},
+  {e:'🐊',n:'Crocodile',d:'Ancient reptile with powerful jaws!'},
+  {e:'🦏',n:'Rhinoceros',d:'Has a big horn and thick, tough skin.'},
+  {e:'🦛',n:'Hippo',d:'Loves water and has a giant mouth!'},
+  {e:'🐒',n:'Monkey',d:'Swings on trees and is very playful.'},
+  {e:'🐼',n:'Panda',d:'Eats bamboo and loves to be lazy!'},
+  {e:'🦘',n:'Kangaroo',d:'Jumps really high with a pouch for babies.'},
+  {e:'🐨',n:'Koala',d:'Sleeps 18 hours a day in eucalyptus trees!'},
+  {e:'🦦',n:'Otter',d:'Swims on its back and holds hands to sleep.'},
+  {e:'🦝',n:'Raccoon',d:'Has a mask-like face and tiny clever paws.'},
+  {e:'🐢',n:'Tortoise',d:'Very slow but lives for hundreds of years!'},
+  {e:'🦔',n:'Hedgehog',d:'Covered in tiny spines to stay safe.'},
+];
+
+const birdsData = [
+  {e:'🦜',n:'Parrot',d:'Can talk and mimic human voices!'},
+  {e:'🦅',n:'Eagle',d:'Has amazing eyesight and soars very high.'},
+  {e:'🦆',n:'Duck',d:'Says quack and loves to swim in ponds!'},
+  {e:'🦉',n:'Owl',d:'Wise night bird with huge glowing eyes.'},
+  {e:'🐦',n:'Sparrow',d:'A tiny chirpy bird found almost everywhere!'},
+  {e:'🦩',n:'Flamingo',d:'Stands on one leg and is bright pink!'},
+  {e:'🦚',n:'Peacock',d:'Has a gorgeous rainbow tail fan!'},
+  {e:'🐧',n:'Penguin',d:'Cannot fly but is a wonderful swimmer.'},
+  {e:'🦤',n:'Dodo',d:'An extinct flightless bird from Mauritius.'},
+  {e:'🦢',n:'Swan',d:'Graceful white bird that mates for life.'},
+  {e:'🐓',n:'Rooster',d:'Crows at sunrise to wake everyone up!'},
+  {e:'🦃',n:'Turkey',d:'A large bird that gobbles & fans its feathers.'},
+  {e:'🪶',n:'Robin',d:'Has a bright red chest and sings sweetly.'},
+  {e:'🦋',n:'Hummingbird',d:'Tiny bird that hovers and drinks flower nectar.'},
+  {e:'🐦‍⬛',n:'Crow',d:'Very intelligent and remembers faces!'},
+  {e:'🦟',n:'Woodpecker',d:'Drills into tree bark to find insects.'},
+  {e:'🕊️',n:'Dove',d:'Symbol of peace with a soft gentle coo.'},
+  {e:'🦬',n:'Toucan',d:'Has a giant colorful beak, loves rainforests!'},
+];
+
+const colorsData = [
+  {n:'Red',hex:'#e74c3c',bg:'#ffeaea'},{n:'Orange',hex:'#e67e22',bg:'#fff3e0'},
+  {n:'Yellow',hex:'#f1c40f',bg:'#fffde7'},{n:'Green',hex:'#2ecc71',bg:'#e8f5e9'},
+  {n:'Blue',hex:'#3498db',bg:'#e3f2fd'},{n:'Purple',hex:'#9b59b6',bg:'#f3e5f5'},
+  {n:'Pink',hex:'#e91e8c',bg:'#fce4ec'},{n:'Brown',hex:'#795548',bg:'#efebe9'},
+  {n:'Black',hex:'#212121',bg:'#eeeeee'},{n:'White',hex:'#f5f5f5',bg:'#e0e0e0'},
+  {n:'Cyan',hex:'#00bcd4',bg:'#e0f7fa'},{n:'Gold',hex:'#ffc107',bg:'#fff8e1'},
+];
+
+const shapesData = [
+  {n:'Circle',d:'No corners, perfectly round!',sides:0,color:'#e74c3c'},
+  {n:'Square',d:'4 equal sides and corners.',sides:4,color:'#3498db'},
+  {n:'Triangle',d:'3 sides and 3 pointy corners.',sides:3,color:'#2ecc71'},
+  {n:'Rectangle',d:'Like a square but stretched!',sides:4,color:'#e67e22'},
+  {n:'Pentagon',d:'5 sides — like a home plate!',sides:5,color:'#9b59b6'},
+  {n:'Hexagon',d:'6 sides like a honeycomb cell.',sides:6,color:'#f1c40f'},
+  {n:'Star',d:'5 points shining bright!',sides:5,color:'#e91e8c'},
+  {n:'Heart',d:'Symbol of love and kindness ❤️',sides:0,color:'#e74c3c'},
+  {n:'Diamond',d:'A square tilted sideways!',sides:4,color:'#00bcd4'},
+  {n:'Oval',d:'Like a stretched-out circle.',sides:0,color:'#795548'},
+];
+
+const shapeSVGs = {
+  Circle: `<circle cx="50" cy="50" r="40" fill="{c}" opacity="0.85"/>`,
+  Square: `<rect x="10" y="10" width="80" height="80" rx="4" fill="{c}" opacity="0.85"/>`,
+  Triangle: `<polygon points="50,8 92,92 8,92" fill="{c}" opacity="0.85"/>`,
+  Rectangle: `<rect x="4" y="22" width="92" height="56" rx="4" fill="{c}" opacity="0.85"/>`,
+  Pentagon: `<polygon points="50,6 94,37 78,90 22,90 6,37" fill="{c}" opacity="0.85"/>`,
+  Hexagon: `<polygon points="50,4 91,27 91,73 50,96 9,73 9,27" fill="{c}" opacity="0.85"/>`,
+  Star: `<polygon points="50,4 61,35 95,35 68,57 79,91 50,70 21,91 32,57 5,35 39,35" fill="{c}" opacity="0.85"/>`,
+  Heart: `<path d="M50 85 C50 85 8 55 8 28 C8 14 20 6 34 10 C42 12 48 18 50 22 C52 18 58 12 66 10 C80 6 92 14 92 28 C92 55 50 85 50 85Z" fill="{c}" opacity="0.85"/>`,
+  Diamond: `<polygon points="50,6 94,50 50,94 6,50" fill="{c}" opacity="0.85"/>`,
+  Oval: `<ellipse cx="50" cy="50" rx="45" ry="30" fill="{c}" opacity="0.85"/>`,
+};
+
+const fruitsData = [
+  {e:'🍎',n:'Apple',d:'Crunchy, red and sweet — an apple a day!'},
+  {e:'🍌',n:'Banana',d:'Yellow, curved and full of energy!'},
+  {e:'🍇',n:'Grapes',d:'Tiny and sweet, grow in bunches!'},
+  {e:'🍊',n:'Orange',d:'Juicy citrus fruit full of vitamin C!'},
+  {e:'🍓',n:'Strawberry',d:'Red, heart-shaped and super sweet!'},
+  {e:'🍉',n:'Watermelon',d:'Big, green outside, red and juicy inside!'},
+  {e:'🍑',n:'Peach',d:'Soft, fuzzy fruit with a big pit inside.'},
+  {e:'🍍',n:'Pineapple',d:'Spiky outside, sweet and tangy inside!'},
+  {e:'🥭',n:'Mango',d:'King of fruits! Tropical and delicious.'},
+  {e:'🍋',n:'Lemon',d:'Very sour! Used to make lemonade!'},
+  {e:'🍒',n:'Cherry',d:'Tiny red fruit that grows on trees!'},
+  {e:'🥝',n:'Kiwi',d:'Fuzzy brown outside, bright green inside!'},
+  {e:'🍐',n:'Pear',d:'Green, mild and sweet with a curvy shape.'},
+  {e:'🫐',n:'Blueberry',d:'Tiny blue berries packed with goodness!'},
+  {e:'🍈',n:'Melon',d:'Large, pale fruit with a sweet soft center.'},
+  {e:'🥥',n:'Coconut',d:'Hard shell, milky juice inside — from palms!'},
+];
+
+const veggiesData = [
+  {e:'🥦',n:'Broccoli',d:'Tiny tree-shaped veggie full of vitamins!'},
+  {e:'🥕',n:'Carrot',d:'Orange, crunchy — helps you see in the dark!'},
+  {e:'🌽',n:'Corn',d:'Yellow and sweet, grows tall in fields!'},
+  {e:'🍅',n:'Tomato',d:'Red and juicy — a fruit used as a veggie!'},
+  {e:'🥔',n:'Potato',d:'Makes fries and chips — super versatile!'},
+  {e:'🧅',n:'Onion',d:'Makes you cry when you cut it — but tasty!'},
+  {e:'🧄',n:'Garlic',d:'Strong smell, great flavor and very healthy!'},
+  {e:'🥬',n:'Lettuce',d:'Leafy and green, perfect for salads!'},
+  {e:'🫑',n:'Bell Pepper',d:'Crunchy and colorful — red, yellow or green!'},
+  {e:'🍆',n:'Eggplant',d:'Deep purple veggie used in many dishes.'},
+  {e:'🥒',n:'Cucumber',d:'Cool, watery and refreshing when sliced!'},
+  {e:'🫛',n:'Green Peas',d:'Little round peas hiding in a pod!'},
+  {e:'🌶️',n:'Chili',d:'Spicy red pepper that makes food fiery!'},
+  {e:'🫚',n:'Spinach',d:'Dark green leaves — makes you super strong!'},
+];
+
+// ─── QUIZ DATA ───────────────────────────────────────────
+const quizPool = [
+  {q:"Which animal is the King of the Jungle?",e:"🦁",a:"Lion",opts:["Tiger","Elephant","Lion","Giraffe"]},
+  {q:"What color is a banana?",e:"🍌",a:"Yellow",opts:["Red","Yellow","Blue","Green"]},
+  {q:"Which letter comes after C?",e:"🔤",a:"D",opts:["B","E","D","F"]},
+  {q:"How many sides does a triangle have?",e:"🔺",a:"3",opts:["4","3","5","6"]},
+  {q:"Which bird cannot fly?",e:"🐧",a:"Penguin",opts:["Eagle","Parrot","Owl","Penguin"]},
+  {q:"What number comes after 9?",e:"🔢",a:"10",opts:["8","11","10","12"]},
+  {q:"Which fruit is red and heart-shaped?",e:"🍓",a:"Strawberry",opts:["Apple","Strawberry","Cherry","Mango"]},
+  {q:"Which animal has black & white stripes?",e:"🦓",a:"Zebra",opts:["Tiger","Zebra","Giraffe","Panda"]},
+  {q:"What color is the sky?",e:"☀️",a:"Blue",opts:["Green","Blue","Pink","Yellow"]},
+  {q:"Which bird is a symbol of peace?",e:"🕊️",a:"Dove",opts:["Crow","Parrot","Eagle","Dove"]},
+  {q:"How many sides does a hexagon have?",e:"⬡",a:"6",opts:["5","4","6","8"]},
+  {q:"Which animal eats bamboo?",e:"🐼",a:"Panda",opts:["Bear","Panda","Koala","Monkey"]},
+  {q:"What is the largest land animal?",e:"🐘",a:"Elephant",opts:["Giraffe","Elephant","Hippo","Rhino"]},
+  {q:"Which letter starts the word 'Apple'?",e:"🍎",a:"A",opts:["B","P","A","E"]},
+  {q:"Which vegetable makes you cry when cut?",e:"😢",a:"Onion",opts:["Garlic","Potato","Onion","Carrot"]},
+  {q:"What color is a carrot?",e:"🥕",a:"Orange",opts:["Red","Orange","Yellow","Purple"]},
+  {q:"Which bird has a very colorful tail?",e:"🦚",a:"Peacock",opts:["Parrot","Flamingo","Peacock","Toucan"]},
+  {q:"How many sides does a square have?",e:"🟥",a:"4",opts:["3","4","5","6"]},
+  {q:"Which fruit is the 'King of Fruits'?",e:"🥭",a:"Mango",opts:["Apple","Banana","Mango","Orange"]},
+  {q:"What does a cow say?",e:"🐄",a:"Moo",opts:["Baa","Moo","Cluck","Woof"]},
+];
+
+let quizIndex = 0, score = 0, streak = 0, answered = 0;
+let shuffledQuiz = [];
+
+// ─── SCREEN SWITCHING ────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  if (id === 'home') document.querySelector('nav button').classList.add('active');
+  if (id === 'quiz') {
+    document.querySelectorAll('nav button')[1].classList.add('active');
+    if (shuffledQuiz.length === 0) initQuiz();
+  }
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ─── ALPHABET ────────────────────────────────────────────
+function buildAlphabet() {
+  const g = document.getElementById('alphabet-grid');
+  alphabetData.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'letter-card';
+    card.style.background = d.c;
+    card.innerHTML = `<span class="big-letter" style="color:var(--ink)">${d.l}</span><span class="letter-pic">${d.e}</span><span class="letter-word">${d.w}</span>`;
+    card.onclick = () => showPopup(d.e, d.l + ' is for ' + d.w, 'Tap the letter to learn! "' + d.l + '" sounds like ' + d.l.toLowerCase() + ' in ' + d.w + '.');
+    g.appendChild(card);
+  });
+}
+
+// ─── NUMBERS ─────────────────────────────────────────────
+function buildNumbers() {
+  const g = document.getElementById('numbers-grid');
+  numbersData.forEach((d,i) => {
+    const card = document.createElement('div');
+    card.className = 'number-card';
+    card.style.background = numberColors[i % numberColors.length];
+    card.innerHTML = `<span class="big-num">${d.n}</span><span class="num-emoji">${d.e}</span><span class="num-word">${d.w}</span>`;
+    card.onclick = () => showPopup('🔢', d.w, 'The number ' + d.n + ' is called "' + d.w + '". Can you count to ' + d.n + '?');
+    g.appendChild(card);
+  });
+}
+
+// ─── CREATURES (animals / birds / fruits / veggies) ──────
+function buildCreatureGrid(data, gridId) {
+  const g = document.getElementById(gridId);
+  data.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'creature-card';
+    card.innerHTML = `<span class="creature-emoji">${d.e}</span><h4>${d.n}</h4><p>${d.d}</p><button class="sound-btn" onclick="speak('${d.n}', event)">🔊 Say it!</button>`;
+    card.onclick = (ev) => { if(!ev.target.classList.contains('sound-btn')) showPopup(d.e, d.n, d.d); };
+    g.appendChild(card);
+  });
+}
+
+// ─── COLORS ──────────────────────────────────────────────
+function buildColors() {
+  const g = document.getElementById('colors-grid');
+  colorsData.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'color-card';
+    card.style.background = d.bg;
+    card.innerHTML = `<div class="color-circle" style="background:${d.hex}"></div><h4>${d.n}</h4>`;
+    card.onclick = () => showPopup('🎨', d.n, 'This color is called ' + d.n + '! Can you find something ' + d.n.toLowerCase() + ' around you?');
+    g.appendChild(card);
+  });
+}
+
+// ─── SHAPES ──────────────────────────────────────────────
+function buildShapes() {
+  const g = document.getElementById('shapes-grid');
+  shapesData.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'shape-card';
+    const svgPath = (shapeSVGs[d.n] || '').replace(/{c}/g, d.color);
+    card.innerHTML = `<svg width="100" height="100" viewBox="0 0 100 100">${svgPath}</svg><h4>${d.n}</h4><p>${d.d}</p>`;
+    card.onclick = () => showPopup('🔷', d.n, d.d + (d.sides > 0 ? ' It has ' + d.sides + ' sides.' : ''));
+    g.appendChild(card);
+  });
+}
+
+// ─── POPUP ───────────────────────────────────────────────
+function showPopup(emoji, title, desc) {
+  document.getElementById('popup-emoji').textContent = emoji;
+  document.getElementById('popup-title').textContent = title;
+  document.getElementById('popup-desc').textContent = desc;
+  document.getElementById('popup').classList.add('open');
+  speak(title);
+}
+
+function closePopup(e) {
+  if (e.target === document.getElementById('popup')) closePopupDirect();
+}
+
+function closePopupDirect() {
+  document.getElementById('popup').classList.remove('open');
+}
+
+// ─── SPEECH ──────────────────────────────────────────────
+function speak(text, e) {
+  if (e) e.stopPropagation();
+  if ('speechSynthesis' in window) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.85; u.pitch = 1.1;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  }
+}
+
+// ─── QUIZ ─────────────────────────────────────────────────
+function initQuiz() {
+  shuffledQuiz = [...quizPool].sort(() => Math.random() - 0.5);
+  quizIndex = 0; score = 0; streak = 0; answered = 0;
+  updateScoreDisplay();
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = shuffledQuiz[quizIndex % shuffledQuiz.length];
+  document.getElementById('quiz-q').textContent = q.q;
+  document.getElementById('quiz-emoji').textContent = q.e;
+  const opts = document.getElementById('quiz-opts');
+  opts.innerHTML = '';
+  const shuffled = [...q.opts].sort(() => Math.random() - 0.5);
+  shuffled.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = o;
+    btn.onclick = () => checkAnswer(o, q.a);
+    opts.appendChild(btn);
+  });
+  document.getElementById('quiz-next').style.display = 'none';
+}
+
+function checkAnswer(chosen, correct) {
+  const opts = document.querySelectorAll('.quiz-opt');
+  answered++;
+  opts.forEach(b => {
+    b.onclick = null;
+    if (b.textContent === correct) b.classList.add('correct');
+    if (b.textContent === chosen && chosen !== correct) b.classList.add('wrong');
+  });
+  if (chosen === correct) {
+    score += 10 + streak * 2;
+    streak++;
+    spawnConfetti();
+    speak('Correct! Great job!');
+  } else {
+    streak = 0;
+    speak('Oops! The answer is ' + correct);
+  }
+  updateScoreDisplay();
+  document.getElementById('quiz-next').style.display = 'inline-block';
+}
+
+function nextQuestion() {
+  quizIndex++;
+  if (quizIndex >= shuffledQuiz.length) shuffledQuiz = [...quizPool].sort(() => Math.random() - 0.5), quizIndex = 0;
+  renderQuestion();
+}
+
+function updateScoreDisplay() {
+  document.getElementById('q-score').textContent = score;
+  document.getElementById('q-streak').textContent = streak;
+  document.getElementById('q-total').textContent = answered;
+}
+
+// ─── CONFETTI ────────────────────────────────────────────
+const confettiColors = ['#e74c3c','#f1c40f','#2ecc71','#3498db','#9b59b6','#e67e22','#e91e8c'];
+function spawnConfetti() {
+  for (let i = 0; i < 24; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.cssText = `left:${Math.random()*100}vw;top:${Math.random()*30}vh;background:${confettiColors[Math.floor(Math.random()*confettiColors.length)]};transform:rotate(${Math.random()*360}deg);animation-delay:${Math.random()*0.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>0.5?'50%':'3px'}`;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 2500);
+  }
+}
+
+// ─── INIT ─────────────────────────────────────────────────
+buildAlphabet();
+buildNumbers();
+buildCreatureGrid(animalsData, 'animals-grid');
+buildCreatureGrid(birdsData, 'birds-grid');
+buildColors();
+buildShapes();
+buildCreatureGrid(fruitsData, 'fruits-grid');
+buildCreatureGrid(veggiesData, 'veggies-grid');
+</script>
+</body>
+</html>
